@@ -1,12 +1,13 @@
+
 package main
 
-<<<<<<< HEAD
 import (
+	"fmt"
 	"io/ioutil"
 )
 
 func main() {
-
+	fmt.Println("Hello, world!")
 }
 
 func readFile() string {
@@ -18,11 +19,4 @@ func readFile() string {
 	return string(fileContents)
 }
 
-func renderTemplate()
-=======
-import "fmt"
-
-func main() {
-	fmt.Println("Hello, world!")
-}
->>>>>>> 9514ac8a2c135a448a2b15a4b246dcd5d59ee7bf
+// func renderTemplate()
