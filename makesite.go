@@ -4,10 +4,19 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 )
 
 func main() {
 	fmt.Println("Hello, world!")
+	temp := readFile()
+	fmt.Println(temp)
+
+	err := ioutil.WriteFile("tmp/first-post.html", []byte(temp), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 }
 
 func readFile() string {
