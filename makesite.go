@@ -9,12 +9,15 @@ import (
 )
 
 func main() {
-	var filename string
-	flag.StringVar(&filename, "file", "", "File name")
-	flag.Parse()
-	content := readFile(filename)
-	writeFile(filename, content)
-
+	// var filename string
+	// var dir string
+	// flag.StringVar(&filename, "file", "", "File name")
+	// flag.StringVar(&dir, "dir", "", "Directory name")
+	// flag.Parse()
+	//
+	// content := readFile(filename)
+	// writeFile(filename, content)
+	saveFile()
 }
 
 func readFile(file string) string {
@@ -26,7 +29,7 @@ func readFile(file string) string {
 	return string(fileContents)
 }
 
-func writeFile(file string, content string) string {
+func writeFile(file string, content string) {
 	s := strings.Split(file, ".")
 
 	new_file := "tmp/" + s[0] + ".html"
@@ -35,8 +38,25 @@ func writeFile(file string, content string) string {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
 
-	return ""
+func saveFile() {
+	var filename string
+	var dir string
+	flag.StringVar(&filename, "file", "", "File name")
+	flag.StringVar(&dir, "dir", "", "Directory name")
+	flag.Parse()
+
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+	    log.Fatal(err)
+	}
+	for _, f := range files {
+		if f.Name()[len(f.Name())-4:] == ".txt"{
+			content := readFile(dir + "/" + f.Name())
+			writeFile(f.Name(), content)
+		}
+	}
 }
 //
 // package main
