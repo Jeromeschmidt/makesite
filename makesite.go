@@ -1,22 +1,17 @@
 package main
 
 import (
-	// "fmt"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"flag"
 	"strings"
+	"cloud.google.com/go/translate"
+	"golang.org/x/text/language"
+	"context"
 )
 
 func main() {
-	// var filename string
-	// var dir string
-	// flag.StringVar(&filename, "file", "", "File name")
-	// flag.StringVar(&dir, "dir", "", "Directory name")
-	// flag.Parse()
-	//
-	// content := readFile(filename)
-	// writeFile(filename, content)
 	saveFile()
 }
 
@@ -26,7 +21,9 @@ func readFile(file string) string {
 		panic(err)
 	}
 
-	return string(fileContents)
+	newfileContents, _ := translateText("en", string(fileContents))
+
+	return string(newfileContents)
 }
 
 func writeFile(file string, content string) {
@@ -58,102 +55,28 @@ func saveFile() {
 		}
 	}
 }
-//
-// package main
-//
-// import (
-// 	"fmt"
-// 	"io/ioutil"
-// 	"log"
-// 	"flag"
-// )
-//
-// func main() {
-//
-// 	fmt.Println("Hello, world!")
-//
-// 	file := flag.Parse()
-//
-// 	temp := readFile(file)
-// 	// fmt.Println(temp)
-//
-// 	writeFile(file)
-//
-// }
-//
-// func readFile(file string) string {
-// 	fileContents, err := ioutil.ReadFile(file)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	return string(fileContents)
-// }
-//
 
-//
-// package main
-//
-// import (
-// 	"fmt"
-// 	"io/ioutil"
-// 	"log"
-// )
-//
-// func main() {
-// 	fmt.Println("Hello, world!")
-// 	temp := readFile()
-// 	fmt.Println(temp)
-//
-// 	err := ioutil.WriteFile("tmp/first-post.html", []byte(temp), 0644)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-//
-// }
-//
-// func readFile() string {
-// 	fileContents, err := ioutil.ReadFile("first-post.txt")
-// 	if err != nil {
-// 		panic(err)
-// 	}
-//
-// 	return string(fileContents)
-// }
-// //
-// }
+func translateText(targetLanguage, text string) (string, error) {
+        // text := "The Go Gopher is cute"
+        ctx := context.Background()
 
-// func renderTemplate()
+        lang, err := language.Parse(targetLanguage)
+        if err != nil {
+                return "", fmt.Errorf("language.Parse: %v", err)
+        }
 
-// package main
-//
-// import (
-//         "html/template"
-//         "os"
-// 		"io/ioutil"
-// 		"log"
-//
-// )
-//
-// type entry struct {
-//         Name string
-//         Done bool
-// }
-//
-// type ToDo struct {
-//         User string
-//         List []entry
-// }
-//
-// func main() {
-//         t := template.Must(template.New("template.tmpl").ParseFiles("new.html"))
-//         err = t.Execute(os.Stdout, todos)
-//         if err != nil {
-//           panic(err)
-//         }
-//
-// 		err := ioutil.WriteFile("tmp/first-post.html", []byte(temp), 0644)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-// }
+        client, err := translate.NewClient(ctx)
+        if err != nil {
+                return "", err
+        }
+        defer client.Close()
+
+        resp, err := client.Translate(ctx, []string{text}, lang, nil)
+        if err != nil {
+                return "", fmt.Errorf("Translate: %v", err)
+        }
+        if len(resp) == 0 {
+                return "", fmt.Errorf("Translate returned empty response to text: %s", text)
+        }
+        return resp[0].Text, nil
+}
